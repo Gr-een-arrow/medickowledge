@@ -1,0 +1,36 @@
+.idea
+venv
+*.code-workspace
+__pycache__/
+*.py[cod]
+*.cfg
+
+# C extensions
+*.so
+
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+scripts/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+midway
+data
+.env
+*.out
+.vscode
+8000
+.DS_Store
+static-root
+*.iml
+*.log
+tmp*
