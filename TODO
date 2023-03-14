@@ -1,0 +1,25 @@
+Endpoints:
+  - users # Completed
+  - user/me
+  - user/create-medical-profile
+  - user/create-customer-profile
+  - users - { Admin Role Authentication }
+  - requests - { Authentication - get and post requests }
+  - Response - { Authentication - get and post requests }
+
+Roles:
+  - medical
+  - Cutomer
+
+Seializers:
+  - UserList
+  - UserDetail
+  - Request and Response { yet to be decided }
+
+Model:
+  - Add Image Field
+
+Learn:
+  - UserManager
+  - RolePermissions
+  - JWT
