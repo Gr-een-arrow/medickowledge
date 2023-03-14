@@ -20,10 +20,11 @@ parts/
 sdist/
 scripts/
 var/
+/migrations/0*.py
+/migrations/00*.py
 *.egg-info/
 .installed.cfg
 *.egg
-midway
 data
 .env
 *.out
