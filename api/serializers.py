@@ -1,7 +1,8 @@
 from rest_framework import serializers
-from .models import *
+from backend import roles
+from rolepermissions.checkers import has_role
 from django.contrib.auth import get_user_model, password_validation
-
+from .models import *
 User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
@@ -9,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'profile']
+        fields = ['id', 'username', 'email', 'password', 'roles']
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_password(self, value):
@@ -17,37 +18,67 @@ class UserSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
+        
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            roles=validated_data['roles']
         )
         return user
-
-
-# class UserListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'email', 'password']
 
 
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['id', 'name', 'pincode', 'address']
-
-    address = serializers.CharField(max_length=500, required=False)
+        fields = ['id', 'name', 'address', 'pincode']
 
     def create(self, validated_data):
         validated_data['profile'] = self.context['request'].user
         return super().create(validated_data)
 
-class CustomerDetailSerializer(serializers.ModelSerializer):
+class MedicalSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Customer
-        field = ['id', 'name', '']
+        model = Medical
+        fields = ['id', 'name', 'address', 'state', 'country', 'pincode', 'phone', 'description']
 
-# class UserProfileSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserProfile
-#         field = ['id', 'name']
+    def create(self, validated_data):
+        validated_data['profile'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+       
+    def profile(self, obj):
+        profile = obj.medical_profile if has_role(obj, roles.MedicalRole) else obj.customer_profile
+        serializer = MedicalSerializer(profile) if has_role(obj, roles.MedicalRole) else CustomerSerializer(profile)
+        return serializer.data
+
+    class Meta:
+        model = User
+        fields = ['id', 'email', 'username', 'user_profile']
+        # extra_kwagrs = {'profile': {'read_only': True}}
+
+    user_profile = serializers.SerializerMethodField(method_name='profile')
+ 
+
+
+class RequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = ['id', 'medicine']
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class ResponseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Response
+        fields = ['id', 'request', 'user', 'status', 'description']
+        
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)

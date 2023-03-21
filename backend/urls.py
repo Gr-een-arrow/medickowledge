@@ -22,11 +22,16 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 import api
+import debug_toolbar
 
+
+admin.site.site_header = 'Medicknowledge Admin'
 
 urlpatterns = [
+    path('__debug__/', include('debug_toolbar.urls')),
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    path('api-auth/', include('rest_framework.urls')),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

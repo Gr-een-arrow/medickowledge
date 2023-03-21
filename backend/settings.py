@@ -10,7 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+from dotenv import load_dotenv
 from pathlib import Path
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,12 +40,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rolepermissions',
     'rest_framework',
     'rest_framework_simplejwt',
+    'debug_toolbar',
     'api',
 ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -79,15 +85,18 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'medicknowledge',
-        'USER': 'postgres',
-        'PASSWORD': 'Sher!0cked',
-        'HOST': 'localhost',
+        'NAME': os.getenv('DB_NAME'),
+        'USER':  os.getenv('DB_USER'),
+        'PASSWORD':  os.getenv('DB_PASSWORD'),
+        'HOST':  os.getenv('DB_HOST'),
         'PORT': '',
 
     }
 }
 
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 
 # Password validation
@@ -137,8 +146,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'api.User'
 
+ROLEPERMISSIONS_MODULE = 'backend.roles'
+
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication', 
     )
 }
