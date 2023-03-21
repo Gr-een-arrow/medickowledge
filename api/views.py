@@ -1,7 +1,77 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-# Create your views here.
+from backend import roles
+from django.shortcuts import get_object_or_404
+from rest_framework.response import Response as DRFResponse
+from rest_framework import status
+from rest_framework import generics, viewsets, mixins
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rolepermissions.checkers import has_role
+from rolepermissions.mixins import HasRoleMixin
+from .serializers import *
+from .models import *
+
+class UserListAPIView(generics.ListAPIView):
+    # [ TODO Authentiction 'Admin Only' ]
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+# class UserProfileCreateAPIView(generics.CreateAPIView):
+#     serializer_class = UserSerializer
+
+class UserDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserDetailSerializer
+
+    def get_object(self):
+        return User.objects.select_related('medical_profile', 'customer_profile').prefetch_related('groups').get(pk=self.request.user.pk)
+
+class CreateProfileAPIView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        return Medical.objects.all() if has_role(self.request.user, roles.MedicalRole) else Customer.objects.all()
+    
+    def get_serializer_class(self):
+        return MedicalSerializer if has_role(self.request.user, roles.MedicalRole) else CustomerSerializer
+
+class CreateUserAPIView(generics.CreateAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+# TODO: user/me - returns: username, email along with the profile
 
 
-def customer_view(request):
-    return HttpResponse("Okay Bro")
+# class CustomerListAPIView(generics.ListCreateAPIView):
+#     queryset = Customer.objects.all()
+#     serializer_class = CustomerSerializer
+
+class RequestListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = RequestSerializer
+
+    def get_queryset(self):
+        if self.request.user.roles == User.CUSTOMER:
+            return Request.objects.filter(user=self.request.user)
+        else:
+            return Request.objects.select_related('user').filter(user__customer_profile__pincode=self.request.user.medical_profile.pincode)
+    
+    def post(self, request, *args, **kwargs):
+        if self.request.user.roles == User.CUSTOMER:
+            return self.create(request, *args, **kwargs)
+        else:
+            return DRFResponse({'detail': 'only customers can send request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class ResponseListAPIView(HasRoleMixin, generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    allowed_roles = 'customer_role'
+    serializer_class = ResponseSerializer
+
+    def get_queryset(self):
+        request = get_object_or_404(Request, id=self.kwargs['pk'])
+        return Response.objects.prefetch_related('request', 'user').filter(request=request)
+
+class ResponseListCreateAPIView(HasRoleMixin, generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    allowed_roles = 'medical_role'
+    serializer_class = ResponseSerializer
+
+    def get_queryset(self):
+        return Response.objects.select_related('request', 'user').filter(user=self.request.user)
