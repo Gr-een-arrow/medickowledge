@@ -39,6 +39,18 @@ class CreateUserAPIView(generics.CreateAPIView):
 # TODO: user/me - returns: username, email along with the profile
 
 
+class UserProfilePictureCreateAPIView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserProfilePictureSerializer
+    queryset = UserProfilePicture.objects.all()
+
+class UserProfilePictureRetrieveUpdateDeleteAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserProfilePictureSerializer
+    def get_object(self):
+        # return UserProfilePicture.objects.get(user=self.request.user.pk)
+        return get_object_or_404(UserProfilePicture, user=self.request.user.pk)
+
 # class CustomerListAPIView(generics.ListCreateAPIView):
 #     queryset = Customer.objects.all()
 #     serializer_class = CustomerSerializer

@@ -28,6 +28,15 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
+class UserProfilePictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfilePicture
+        fields = ['id', 'profile_picture']
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
@@ -66,7 +75,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
-        fields = ['id', 'medicine']
+        fields = ['id', 'medicine', 'photo']
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
