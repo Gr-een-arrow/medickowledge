@@ -60,7 +60,7 @@ class User(AbstractUser):
         return self.username
 
 class UserProfilePicture(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
 
 class Medical(models.Model):
@@ -100,6 +100,8 @@ class Customer(models.Model):
 class Request(models.Model):
     user = models.ForeignKey(User, related_name='requests', on_delete=models.CASCADE, default=1)
     medicine = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default='')
+    photo = models.ImageField(upload_to='medicine-images/', blank=True, null=True)
     
     def __str__(self):
         return self.medicine
