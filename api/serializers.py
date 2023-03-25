@@ -59,9 +59,12 @@ class MedicalSerializer(serializers.ModelSerializer):
 class UserDetailSerializer(serializers.ModelSerializer):
        
     def profile(self, obj):
-        profile = obj.medical_profile if has_role(obj, roles.MedicalRole) else obj.customer_profile
-        serializer = MedicalSerializer(profile) if has_role(obj, roles.MedicalRole) else CustomerSerializer(profile)
-        return serializer.data
+        try:
+            profile = obj.medical_profile if has_role(obj, roles.MedicalRole) else obj.customer_profile
+            serializer = MedicalSerializer(profile) if has_role(obj, roles.MedicalRole) else CustomerSerializer(profile)
+            return serializer.data
+        except:
+            return None
 
     class Meta:
         model = User
@@ -75,7 +78,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
-        fields = ['id', 'medicine', 'photo']
+        fields = ['id', 'medicine','description', 'photo']
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user

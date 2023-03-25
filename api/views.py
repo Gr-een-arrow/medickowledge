@@ -60,14 +60,23 @@ class RequestListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = RequestSerializer
 
     def get_queryset(self):
-        if self.request.user.roles == User.CUSTOMER:
+        user = self.request.user
+        if user.roles == User.CUSTOMER:
             return Request.objects.filter(user=self.request.user)
         else:
-            return Request.objects.select_related('user').filter(user__customer_profile__pincode=self.request.user.medical_profile.pincode)
+            if hasattr(user, 'medical_profile'):
+                return Request.objects.select_related('user').filter(user__customer_profile__pincode=self.request.user.medical_profile.pincode)
+            # else:
+            #     return DRFResponse({'detail': 'Create profile to see request'}, status=status.HTTP_400_BAD_REQUEST)
     
     def post(self, request, *args, **kwargs):
-        if self.request.user.roles == User.CUSTOMER:
-            return self.create(request, *args, **kwargs)
+        user = self.request.user
+        if user.roles == User.CUSTOMER:
+            if hasattr(user, 'customer_profile'):
+                return self.create(request, *args, **kwargs)
+            else:
+                return DRFResponse({'detail': 'Create profile to send request'}, status=status.HTTP_400_BAD_REQUEST)
+
         else:
             return DRFResponse({'detail': 'only customers can send request'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -87,3 +96,10 @@ class ResponseListCreateAPIView(HasRoleMixin, generics.ListCreateAPIView):
 
     def get_queryset(self):
         return Response.objects.select_related('request', 'user').filter(user=self.request.user)
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        if hasattr(user, 'medical_profile'):
+                return self.create(request, *args, **kwargs)
+        else:
+            return DRFResponse({'detail': 'Create profile to send request'}, status=status.HTTP_400_BAD_REQUEST)
