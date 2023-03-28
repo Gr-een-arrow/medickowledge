@@ -12,7 +12,10 @@ urlpatterns = [
     path('requests/', views.RequestListCreateAPIView.as_view(), name='requests'),
 
     path('requests/<int:pk>/responses/', views.ResponseListAPIView.as_view(), name='responses'),
-    path('response/', views.ResponseListCreateAPIView.as_view(), name='response-list-create')
+    path('response/', views.ResponseListCreateAPIView.as_view(), name='response-list-create'),
+
+    path('medicals/', views.MedicalListAPIView.as_view(), name='response-list-create'),
+
     # path('user_profile/', views.UserProfileCreateAPIView.as_view(), name='user_profile_create'),
 
 

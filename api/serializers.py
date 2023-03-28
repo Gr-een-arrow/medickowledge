@@ -76,6 +76,8 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
 
 class RequestSerializer(serializers.ModelSerializer):
+    photo = serializers.ImageField(required=False)
+    description = serializers.CharField(max_length=500, required=False)
     class Meta:
         model = Request
         fields = ['id', 'medicine','description', 'photo']
@@ -83,14 +85,23 @@ class RequestSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+    
+
 
 
 class ResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Response
-        fields = ['id', 'request', 'user', 'status', 'description']
+        fields = ['id', 'request', 'medical', 'status', 'description']
         
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+
+    medical = serializers.SerializerMethodField(method_name='get_medical')
+
+    def get_medical(self, obj):
+        profile = obj.user.medical_profile
+        serializer = MedicalSerializer(profile)
+        return serializer.data

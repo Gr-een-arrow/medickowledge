@@ -103,3 +103,8 @@ class ResponseListCreateAPIView(HasRoleMixin, generics.ListCreateAPIView):
                 return self.create(request, *args, **kwargs)
         else:
             return DRFResponse({'detail': 'Create profile to send request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class MedicalListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    queryset = Medical.objects.all()
+    serializer_class = MedicalSerializer
