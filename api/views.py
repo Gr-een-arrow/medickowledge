@@ -95,16 +95,30 @@ class ResponseListCreateAPIView(HasRoleMixin, generics.ListCreateAPIView):
     serializer_class = ResponseSerializer
 
     def get_queryset(self):
-        return Response.objects.select_related('request', 'user').filter(user=self.request.user)
+        return Response.objects.select_related('request', 'user').filter(user=self.request.user, status=1)
 
     def post(self, request, *args, **kwargs):
         user = self.request.user
         if hasattr(user, 'medical_profile'):
-                return self.create(request, *args, **kwargs)
+            return self.create(request, *args, **kwargs)
         else:
             return DRFResponse({'detail': 'Create profile to send request'}, status=status.HTTP_400_BAD_REQUEST)
 
-class MedicalListAPIView(generics.ListAPIView):
+class MedicalListAPIView(HasRoleMixin, generics.ListAPIView):
     permission_classes = [IsAuthenticated]
-    queryset = Medical.objects.all()
+    allowed_roles = 'customer_role'
     serializer_class = MedicalSerializer
+    def get_queryset(self):
+        current_user = self.request.user
+        return Medical.objects.filter(pincode=current_user.customer_profile.pincode)
+
+    def list(self, request):
+        if hasattr(self.request.user, 'customer_profile'):
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+        else:
+            return DRFResponse({'detail': 'Create profile to see nearby medicals'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return DRFResponse(serializer.data)
+        
+    

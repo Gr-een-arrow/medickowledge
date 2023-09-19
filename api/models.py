@@ -117,6 +117,6 @@ class Response(models.Model):
             return 'For ' + self.request.medicine
 
     def save(self, *args, **kwargs):
-        if self.user.roles != roles.MedicalRole:
+        if self.user.roles != User.MEDICAL:
             raise ValidationError('Only Medicals can send response')
         super().save(*args, **kwargs)

@@ -49,7 +49,19 @@ class CustomerSerializer(serializers.ModelSerializer):
 class MedicalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medical
-        fields = ['id', 'name', 'address', 'state', 'country', 'pincode', 'phone', 'description']
+        fields = ['id', 'name', 'address', 'state', 'country', 'pincode', 'phone', 'description', 'profile_picture']
+
+    profile_picture = serializers.SerializerMethodField(method_name='get_profile')
+
+    def get_profile(self, obj):
+        try:
+            profile = UserProfilePicture.objects.get(user=obj.profile)
+            if profile.profile_picture:
+                return self.context['request'].build_absolute_uri(profile.profile_picture.url)
+        except UserProfilePicture.DoesNotExist:
+            return None
+
+
 
     def create(self, validated_data):
         validated_data['profile'] = self.context['request'].user
@@ -68,7 +80,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'username', 'user_profile']
+        fields = ['id', 'email', 'username', 'user_profile', 'roles']
         # extra_kwagrs = {'profile': {'read_only': True}}
 
     user_profile = serializers.SerializerMethodField(method_name='profile')
