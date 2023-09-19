@@ -9,16 +9,19 @@ pipeline {
         }
         stage('Build') {
             step {
+                echo "On Build"
                 sh 'pip install -r requirements'
             }
         }
         stage('Test') {
             step {
+                echo "On Test"
                 sh 'python manage.py test'
             }
         }
         stage('Report'){
             step {
+                echo "On Report"
                 echo 'successfully completed'
             }
         }
