@@ -3,25 +3,25 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            step {
+            steps {
                 echo "on checkout"
                 checkout scm
             }
         }
         stage('Build') {
-            step {
+            steps {
                 echo "on build"
-                sh 'pip install -r requirements'
+                sh 'python3 -m pip install -r requirements'
             }
         }
         stage('Test') {
-            step {
+            steps {
                 echo "on test"
-                sh 'python manage.py test'
+                sh 'python3 manage.py test'
             }
         }
         stage('Report'){
-            step {
+            steps {
                 echo "on report"
                 echo 'successfully completed'
             }
