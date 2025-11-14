@@ -1,0 +1,20 @@
+.row-card-icons {
+    display: flex;
+    
+    align-items: center;
+  }
+  
+  .row-card-icons i {
+    font-size: 24px;
+    color: #333;
+    margin-right: 10px;
+    cursor: pointer;
+  }
+  
+  .row-card-icons i:hover {
+    color: #00bcd4;
+  }
+  .inpthappu{
+    height: 12px;
+  }
+  
