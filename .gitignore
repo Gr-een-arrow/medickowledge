@@ -35,3 +35,32 @@ static-root
 *.iml
 *.log
 tmp*
+
+
+
+# Frontend
+# dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# build output
+build/
+dist/
+*.css.map
+*.js.map
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDEs
+.vscode/
+.idea/
+
+# jest
+coverage/
