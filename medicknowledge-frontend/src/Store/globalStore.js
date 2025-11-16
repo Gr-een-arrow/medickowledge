@@ -1,7 +1,8 @@
-import { proxy, useSnapshot } from 'valtio';
+import { proxy } from 'valtio';
 export const globalState = proxy({ 
 
-    baseUrl : "https://mkahamed.pythonanywhere.com",
+    // get from .env
+    baseUrl : process.env.REACT_APP_BASE_URL || "http://localhost:8000",
 
     access : "",
    
