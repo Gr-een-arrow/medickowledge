@@ -1,10 +1,12 @@
 .idea
 venv
+.venv
 *.code-workspace
 __pycache__/
 *.py[cod]
 *.cfg
 migrations/
+*.sqlite3
 # C extensions
 *.so
 
